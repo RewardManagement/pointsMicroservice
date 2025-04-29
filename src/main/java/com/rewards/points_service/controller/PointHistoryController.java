@@ -1,8 +1,8 @@
-package com.reward.controller;
+package com.rewards.points_service.controller;
 
-import com.reward.dto.PointHistoryDTO;
-import com.reward.responsemodel.ResponseModel;
-import com.reward.service.PointHistoryService;
+import com.rewards.points_service.dto.PointHistoryDTO;
+import com.rewards.points_service.responsemodel.ResponseModel;
+import com.rewards.points_service.service.PointHistoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

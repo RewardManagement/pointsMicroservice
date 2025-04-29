@@ -1,17 +1,19 @@
-package com.reward.service;
+package com.rewards.points_service.service;
 
-import com.reward.dto.PointHistoryDTO;
-import com.reward.entity.Event;
-import com.reward.entity.PointHistory;
-import com.reward.entity.User;
-import com.reward.exception.ResourceNotFoundException;
-import com.reward.mapper.PointHistoryMapper;
-import com.reward.repository.EventRepository;
-import com.reward.repository.PointHistoryRepository;
-import com.reward.repository.UserRepository;
-import com.reward.responsemodel.ResponseModel;
+import com.rewards.points_service.dto.PointHistoryDTO;
+import com.rewards.points_service.entity.Event;
+import com.rewards.points_service.entity.PointHistory;
+import com.rewards.points_service.exception.ResourceNotFoundException;
+import com.rewards.points_service.mapper.PointHistoryMapper;
+import com.rewards.points_service.repository.EventRepository;
+import com.rewards.points_service.repository.PointHistoryRepository;
+import com.rewards.points_service.responsemodel.ResponseModel;
+import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,40 +22,78 @@ import java.util.UUID;
 public class PointHistoryService {
 
     private final PointHistoryRepository pointHistoryRepository;
-    private final UserRepository userRepository;
     private final EventRepository eventRepository;
 
-    public PointHistoryService(PointHistoryRepository pointHistoryRepository, 
-                               UserRepository userRepository, 
+    public PointHistoryService(PointHistoryRepository pointHistoryRepository,
                                EventRepository eventRepository) {
         this.pointHistoryRepository = pointHistoryRepository;
-        this.userRepository = userRepository;
         this.eventRepository = eventRepository;
+    }
+
+    private String getCurrentJwtToken() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getCredentials() instanceof String) {
+            return (String) authentication.getCredentials();
+        }
+        throw new SecurityException("No JWT token found");
+    }
+
+    private boolean checkUserExists(UUID userId, String token) {
+        RestTemplate restTemplate = new RestTemplate();
+        String userServiceUrl = "http://localhost:8081/api/users/" + userId + "/exists";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<ResponseModel> response = restTemplate.exchange(
+                    userServiceUrl,
+                    HttpMethod.GET,
+                    entity,
+                    ResponseModel.class
+            );
+            return response.getStatusCode() == HttpStatus.OK &&
+                   response.getBody() != null &&
+                   (boolean) response.getBody().getResponse();
+        } catch (Exception e) {
+            System.out.println("Error checking user existence: " + e.getMessage());
+            return false;
+        }
     }
 
     @Transactional
     public void recordPointHistory(UUID studentId, UUID eventId, int points) {
-        User student = userRepository.findByIdAndIsDeletedFalse(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found with ID: " + studentId));
+        String token = getCurrentJwtToken();
+
+        if (!checkUserExists(studentId, token)) {
+            throw new ResourceNotFoundException("Student not found or deleted with ID: " + studentId);
+        }
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with ID: " + eventId));
 
         PointHistory pointHistory = PointHistory.builder()
-                .student(student)
+                .studentId(studentId)
                 .event(event)
-                .pointsChanged(points)  // Positive for earning, negative for spending
+                .pointsChanged(points)
                 .build();
 
         pointHistoryRepository.save(pointHistory);
     }
 
     @Transactional
-        public ResponseModel<List<PointHistoryDTO>> getPointHistoryByStudent(UUID studentId) {
+    public ResponseModel<List<PointHistoryDTO>> getPointHistoryByStudent(UUID studentId) {
+        String token = getCurrentJwtToken();
+
+        if (!checkUserExists(studentId, token)) {
+            throw new ResourceNotFoundException("Student not found or deleted with ID: " + studentId);
+        }
+
         List<PointHistory> pointHistories = pointHistoryRepository.findByStudentId(studentId);
 
         if (pointHistories.isEmpty()) {
-                throw new ResourceNotFoundException("No point history found for student ID: " + studentId);
+            throw new ResourceNotFoundException("No point history found for student ID: " + studentId);
         }
 
         List<PointHistoryDTO> pointHistoryDTOs = pointHistories.stream()
@@ -61,5 +101,5 @@ public class PointHistoryService {
                 .toList();
 
         return ResponseModel.success(200, "Point history retrieved successfully", pointHistoryDTOs);
-        }
+    }
 }

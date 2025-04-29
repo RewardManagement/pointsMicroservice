@@ -1,4 +1,4 @@
-package com.reward.responsemodel;
+package com.rewards.points_service.responsemodel;
 
 import lombok.Data;
 

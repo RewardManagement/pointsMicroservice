@@ -1,6 +1,6 @@
-package com.reward.exception;
+package com.rewards.points_service.exception;
 
-import com.reward.responsemodel.ResponseModel;
+import com.rewards.points_service.responsemodel.ResponseModel;
 
 import java.util.HashMap;
 import java.util.Map;

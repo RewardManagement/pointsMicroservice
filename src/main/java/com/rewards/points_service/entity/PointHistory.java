@@ -1,4 +1,4 @@
-package com.reward.entity;
+package com.rewards.points_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,13 +18,12 @@ public class PointHistory {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "student_id", nullable = false)
-    private User student;
+    @Column(name = "student_id", nullable = false)
+    private UUID studentId; // Reference to User (external microservice)
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
-    private Event event;
+    private Event event; // Internal relationship (same microservice)
 
     private int pointsChanged;
 
@@ -35,4 +34,5 @@ public class PointHistory {
         this.createdAt = LocalDateTime.now();
     }
 }
+
 

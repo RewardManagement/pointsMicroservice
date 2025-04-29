@@ -1,4 +1,4 @@
-package com.reward.exception;
+package com.rewards.points_service.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

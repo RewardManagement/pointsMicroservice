@@ -1,6 +1,6 @@
-package com.reward.repository;
+package com.rewards.points_service.repository;
  
-import com.reward.entity.Event;
+import com.rewards.points_service.entity.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
  

@@ -1,4 +1,4 @@
-package com.reward.dto;
+package com.rewards.points_service.dto;
 
 import lombok.*;
 
@@ -15,4 +15,6 @@ public class PointHistoryDTO {
     private Integer pointsChanged;  
     private LocalDateTime createdAt;  
     private Boolean isReward;
+    private UUID studentId;  
+    private UUID eventId;
 }

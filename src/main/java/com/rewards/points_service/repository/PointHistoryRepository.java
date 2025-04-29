@@ -1,6 +1,6 @@
-package com.reward.repository;
+package com.rewards.points_service.repository;
 
-import com.reward.entity.PointHistory;
+import com.rewards.points_service.entity.PointHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

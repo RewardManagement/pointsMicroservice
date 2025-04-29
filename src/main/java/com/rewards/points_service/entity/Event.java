@@ -1,5 +1,5 @@
 package com.rewards.points_service.entity;
- 
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,41 +18,21 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(
-        name = "student_id", 
-        referencedColumnName = "id", 
-        nullable = false, 
-        foreignKey = @ForeignKey(name = "fk_event_student")
-    )
-    private User student;
+    // UUID reference to user (student)
+    @Column(name = "student_id", nullable = false)
+    private UUID studentId;
 
-    @ManyToOne
-    @JoinColumn(
-        name = "badge_id", 
-        referencedColumnName = "id", 
-        nullable = true, 
-        foreignKey = @ForeignKey(name = "fk_event_badge")
-    )
-    private Badges badge;
+    // UUID reference to badge
+    @Column(name = "badge_id")
+    private UUID badgeId;
 
-    @ManyToOne
-    @JoinColumn(
-        name = "reward_id", 
-        referencedColumnName = "id", 
-        nullable = true, 
-        foreignKey = @ForeignKey(name = "fk_event_reward")
-    )
-    private Rewards reward;
+    // UUID reference to reward
+    @Column(name = "reward_id")
+    private UUID rewardId;
 
-    @ManyToOne
-    @JoinColumn(
-        name = "certificate_id", 
-        referencedColumnName = "id", 
-        nullable = true, 
-        foreignKey = @ForeignKey(name = "fk_event_certificate")
-    )
-    private Certificates certificate;
+    // UUID reference to certificate
+    @Column(name = "certificate_id")
+    private UUID certificateId;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
